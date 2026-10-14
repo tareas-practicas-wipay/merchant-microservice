@@ -3,6 +3,7 @@
 Microservicio de **gestión de merchants (comercios)** de Wipay.
 
 Permite crear, consultar y modificar merchants, y saber a qué cliente pertenece cada uno. Forma parte de un sistema de dos microservicios junto a [client-microservice](https://github.com/tareas-practicas-wipay/client-microservice).
+
 ## Stack
 
 - Java: 21
@@ -11,7 +12,7 @@ Permite crear, consultar y modificar merchants, y saber a qué cliente pertenece
 - Lombok: Gestionado por Spring Boot
 - MapStruct: 1.6.3
 - DynamoDB: AWS SDK v2 (Enhanced Client) 2.55.16
-- Swagger / OpenAPI: _Pendiente_ (springdoc-openapi)
+- Swagger / OpenAPI: springdoc-openapi 3.1.1
 
 ## Requisitos previos
 
@@ -52,3 +53,5 @@ src/main/java/com/wipay/merchant
 ## Seguimiento del estado del proyecto
 
 - [x] Creación del microservicio
+- [x] Creación del microservicio
+- [x] Dependencias: MapStruct, DynamoDB y Swagger
