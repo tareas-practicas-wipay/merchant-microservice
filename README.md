@@ -1,8 +1,8 @@
-# wipay-client
+# merchant-microservice
 
 Microservicio de **gestión de merchants (comercios)** de Wipay.
 
-Permite crear, consultar y modificar merchants, y saber a qué cliente pertenece cada uno. Forma parte de un sistema de dos microservicios junto a [wipay-client](https://github.com/TU_USUARIO/wipay-client).
+Permite crear, consultar y modificar merchants, y saber a qué cliente pertenece cada uno. Forma parte de un sistema de dos microservicios junto a [client-microservice](https://github.com/tareas-practicas-wipay/client-microservice).
 ## Stack
 
 - Java: 21
@@ -16,7 +16,7 @@ Permite crear, consultar y modificar merchants, y saber a qué cliente pertenece
 ## Requisitos previos
 
 - JDK 21
-- Docker Desktop (necesario a partir de la integración con DynamoDB)
+- Docker Desktop y la infraestructura local levantada: ver [infraestructure](https://github.com/tareas-practicas-wipay/infraestructure)
 
 ## Arranque
 
