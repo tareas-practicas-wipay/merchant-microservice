@@ -11,7 +11,7 @@ Permite crear, consultar y modificar merchants, y saber a qué cliente pertenece
 - Maven: Wrapper incluido (`mvnw`)
 - Lombok: Gestionado por Spring Boot
 - MapStruct: 1.6.3
-- DynamoDB: AWS SDK v2 (Enhanced Client) 2.55.16
+- DynamoDB: wipay-dynamodb-spring-boot-starter 0.1.0-SNAPSHOT (AWS SDK v2 2.55.16)
 - Swagger / OpenAPI: springdoc-openapi 3.1.1
 
 ## Requisitos previos
