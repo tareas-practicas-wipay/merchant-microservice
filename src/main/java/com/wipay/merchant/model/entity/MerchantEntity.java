@@ -15,5 +15,5 @@ public class MerchantEntity extends MainTable {
 
     private String name;
     private String address;
-    private MerchantType type;
+    private MerchantType merchantType;
 }
