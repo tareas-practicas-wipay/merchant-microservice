@@ -49,6 +49,8 @@ src/main/java/com/wipay/merchant
 ├── repository   → Acceso a DynamoDB
 └── mappers      → Mappers de MapStruct
 ```
+ Controller ── Request ──► (mapper) ── Model ──► Service ── (mapper) ── Entity ──► Repository
+            ◄─ Response ── (mapper) ◄─ Model ───        ◄── (mapper) ◄─ Entity ───
 
 ## Seguimiento del estado del proyecto
 
