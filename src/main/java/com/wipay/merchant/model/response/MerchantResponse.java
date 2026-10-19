@@ -1,0 +1,24 @@
+package com.wipay.merchant.model.response;
+
+import com.wipay.merchant.model.enums.MerchantType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class MerchantResponse {
+
+    private String id;
+    private String clientId;
+    private String name;
+    private String address;
+    private MerchantType merchantType;
+    private String status;
+    private Instant createdDate;
+}
