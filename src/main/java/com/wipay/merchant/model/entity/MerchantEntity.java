@@ -41,4 +41,7 @@ public class MerchantEntity extends MainTable {
     public static String keywordsOf(String name) {
         return name == null ? null : name.trim().toLowerCase();
     }
+
+    /** CLIENT#c1 → c1 */
+    public static String clientIdOf(String pk) {return pk.substring(CLIENT_PREFIX.length());}
 }
