@@ -4,16 +4,16 @@ import com.wipay.merchant.mappers.MerchantMapper;
 import com.wipay.merchant.model.MerchantModel;
 import com.wipay.merchant.model.request.MerchantRequest;
 import com.wipay.merchant.model.response.MerchantResponse;
+import com.wipay.merchant.model.response.SimpleResponse;
 import com.wipay.merchant.service.MerchantService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-import software.amazon.awssdk.enhanced.dynamodb.MappedTableResource;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * ---------------------------------------------------------
@@ -26,7 +26,7 @@ import software.amazon.awssdk.enhanced.dynamodb.MappedTableResource;
  */
 
 @RestController
-@RequestMapping
+@RequestMapping("/merchants")
 @RequiredArgsConstructor
 @Tag(name = "Merchants", description = "Gestión de merchants")
 public class MerchantController {
@@ -42,4 +42,16 @@ public class MerchantController {
         return merchantMapper.modelToResponse(created);
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Obtener un merchant por su id", description = "Con simpleOutput=true devuelve solo el id")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(     // Como devuelve un Object, Swagger no sabe si está bien o no.
+            oneOf = {MerchantResponse.class, SimpleResponse.class})))           // Con esto le decimos que si Object es una de las dos clases, devuelva 200 (OK)
+    public Object findById(@PathVariable String id,
+                           @RequestParam(defaultValue = "false") boolean simpleOutput) {
+        MerchantModel merchant = merchantService.findById(id);
+
+        return (simpleOutput)
+                ? merchantMapper.modelToSimpleResponse(merchant)
+                : merchantMapper.modelToResponse(merchant);
+    }
 }
