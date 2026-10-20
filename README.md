@@ -11,13 +11,14 @@ Permite crear, consultar y modificar merchants, y saber a qué cliente pertenece
 - Maven: Wrapper incluido (`mvnw`)
 - Lombok: Gestionado por Spring Boot
 - MapStruct: 1.6.3
-- DynamoDB: wipay-dynamodb-spring-boot-starter 0.1.0-SNAPSHOT (AWS SDK v2 2.55.16)
+- DynamoDB: wipay-dynamodb-spring-boot-starter 0.2.0-SNAPSHOT (AWS SDK v2 2.55.16)
 - Swagger / OpenAPI: springdoc-openapi 3.1.1
 
 ## Requisitos previos
 
 - JDK 21
 - Docker Desktop y la infraestructura local levantada: ver [infraestructure](https://github.com/tareas-practicas-wipay/infraestructure)
+- El starter de DynamoDB instalado en el repositorio Maven local: clonar [dynamodb-spring-boot-starter](https://github.com/tareas-practicas-wipay/dynamodb-spring-boot-starter) y ejecutar `./mvnw clean install`
 
 ## Arranque
 
@@ -25,12 +26,16 @@ El servicio arranca en **http://localhost:8082**.
 
 ## Modelo de datos
 
-Todas las entidades extienden de `MainTable` (diseño de tabla única en DynamoDB).
+Todas las entidades extienden de `MainTable`, que viene del starter de DynamoDB (diseño de tabla única).
 
 | Entidad | Atributos |
 |---|---|
-| `MainTable` | `PK`, `SK`, `id`, `status`, `gIndex2Pk`, `createdDate` |
-| `Merchant` | `name`, `address`, `merchantType` |
+| `MainTable` | `PK`, `SK`, `id`, `status`, `gIndex2Pk`, `gIndex3Pk`, `createdDate` |
+| `MerchantEntity` | `name`, `address`, `merchantType`, `keywordsSearch` |
+
+`keywordsSearch` no está en el guion: guarda el nombre en minúsculas para buscar sin distinguir mayúsculas.
+
+El merchant no guarda un atributo `clientId`: el cliente al que pertenece está en su `PK`.
 
 ### `MerchantType`
 
@@ -38,6 +43,28 @@ Todas las entidades extienden de `MainTable` (diseño de tabla única en DynamoD
 |---|
 | `MERCHANT_TYPE_PERSONAL_SERVICES` |
 | `MERCHANT_TYPE_FINANCIAL_SERVICES` |
+| `MERCHANT_TYPE_RETAIL` |
+| `MERCHANT_TYPE_ECOMMERCE` |
+| `MERCHANT_TYPE_OTHER` |
+
+## Claves en DynamoDB
+
+Cada merchant se guarda dentro de la partición de su cliente.
+
+| Atributo | Valor |
+|---|---|
+| `PK` | `CLIENT#{clientId}` |
+| `SK` | `MERCHANT#{id}` |
+| `gIndex2Pk` | `MERCHANT#{id}` |
+| `gIndex3Pk` | `ENTITY#MERCHANT` |
+
+| Consulta | Operación |
+|---|---|
+| Merchant por id | Query sobre `gIndex2` |
+| Merchants de un cliente | Query sobre la tabla con `PK = CLIENT#{clientId}` y `SK` que empieza por `MERCHANT#` |
+| Merchants por nombre | Query sobre `gIndex3` (`ENTITY#MERCHANT`) con filtro `contains` sobre `keywordsSearch` |
+
+La búsqueda por nombre lee todos los merchants y después filtra, porque DynamoDB no permite buscar texto parcial con una condición de clave. Gracias a `gIndex3`, no lee los clientes ni el resto de la tabla.
 
 ## Estructura del proyecto
 
@@ -49,11 +76,15 @@ src/main/java/com/wipay/merchant
 ├── repository   → Acceso a DynamoDB
 └── mappers      → Mappers de MapStruct
 ```
- Controller ── Request ──► (mapper) ── Model ──► Service ── (mapper) ── Entity ──► Repository
-            ◄─ Response ── (mapper) ◄─ Model ───        ◄── (mapper) ◄─ Entity ───
+
+Flujo de una petición:
+
+```
+Controller ── Request ──► (mapper) ── Model ──► Service ── (mapper) ── Entity ──► Repository
+           ◄─ Response ── (mapper) ◄─ Model ───         ◄── (mapper) ◄─ Entity ───
+```
 
 ## Seguimiento del estado del proyecto
 
-- [x] Creación del microservicio
 - [x] Creación del microservicio
 - [x] Dependencias: MapStruct, DynamoDB y Swagger
