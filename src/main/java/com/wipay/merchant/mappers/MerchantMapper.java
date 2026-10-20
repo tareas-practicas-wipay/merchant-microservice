@@ -37,6 +37,7 @@ public interface MerchantMapper {
     @Mapping(target = "pk", expression = "java(MerchantEntity.pkOf(model.getClientId()))")
     @Mapping(target = "sk", expression = "java(MerchantEntity.skOf(model.getId()))")
     @Mapping(target = "GIndex2Pk", expression = "java(MerchantEntity.gIndex2PkOf(model.getId()))")
+    @Mapping(target = "GIndex3Pk", constant = MerchantEntity.ENTITY_TYPE)
     @Mapping(target = "keywordsSearch", expression = "java(MerchantEntity.keywordsOf(model.getName()))")
     MerchantEntity modelToEntity(MerchantModel model);
 

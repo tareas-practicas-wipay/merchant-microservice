@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
@@ -47,21 +48,24 @@ public class MerchantRepository {
     }
 
     public List<MerchantEntity> findByName(String text) {
+        QueryConditional condition = QueryConditional.keyEqualTo(
+                key -> key.partitionValue(MerchantEntity.ENTITY_TYPE));
+
         Expression filter = Expression.builder()
-                .expression("begins_with(#sk, :prefix) AND contains(#keywords, :text)")
-                .putExpressionName("#sk", "SK")
+                .expression("contains(#keywords, :text)")
                 .putExpressionName("#keywords", "keywordsSearch")
-                .putExpressionValue(":prefix", AttributeValue.fromS(MerchantEntity.PREFIX))
                 .putExpressionValue(":text", AttributeValue.fromS(MerchantEntity.keywordsOf(text)))
                 .build();
 
-        ScanEnhancedRequest request = ScanEnhancedRequest.builder()
+        QueryEnhancedRequest request = QueryEnhancedRequest.builder()
+                .queryConditional(condition)
                 .filterExpression(filter)
                 .build();
 
-        return merchantTable.scan(request)
-                .items()
+        return merchantTable.index(MainTable.GINDEX3)
+                .query(request)
                 .stream()
+                .flatMap(page -> page.items().stream())
                 .toList();
     }
 }

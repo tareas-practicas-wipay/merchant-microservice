@@ -17,6 +17,7 @@ public class MerchantEntity extends MainTable {
 
     public static final String CLIENT_PREFIX = "CLIENT#"; // Debe coincidir con ClientEntity.PREFIX
     public static final String PREFIX = "MERCHANT#";
+    public static final String ENTITY_TYPE = "ENTITY#MERCHANT";
 
     private String name;
 
