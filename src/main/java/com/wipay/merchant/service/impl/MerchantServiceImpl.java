@@ -13,9 +13,19 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * ---------------------------------------------------------
+ *                       (create)
+ * [ SERVICE ] === mapper(Model->Entity) ==> [ REPOSITORY ]
+ * ---------------------------------------------------------
+ * [ SERVICE ] <== mapper(Model<-Entity) === [ REPOSITORY ]
+ *       (create/findById/findByEmail/findByName)
+ * ---------------------------------------------------------
+ */
 @Service
 @RequiredArgsConstructor
 public class MerchantServiceImpl implements MerchantService {
+
     private static final String STATUS_ACTIVE = "ACTIVE";
 
     private final MerchantRepository merchantRepository;
