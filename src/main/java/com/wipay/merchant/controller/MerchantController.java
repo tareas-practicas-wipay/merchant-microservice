@@ -3,6 +3,7 @@ package com.wipay.merchant.controller;
 import com.wipay.merchant.mappers.MerchantMapper;
 import com.wipay.merchant.model.MerchantModel;
 import com.wipay.merchant.model.request.MerchantRequest;
+import com.wipay.merchant.model.request.NameSearchRequest;
 import com.wipay.merchant.model.response.MerchantResponse;
 import com.wipay.merchant.model.response.SimpleResponse;
 import com.wipay.merchant.service.MerchantService;
@@ -11,9 +12,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * ---------------------------------------------------------
@@ -53,5 +58,12 @@ public class MerchantController {
         return (simpleOutput)
                 ? merchantMapper.modelToSimpleResponse(merchant)
                 : merchantMapper.modelToResponse(merchant);
+    }
+
+    @GetMapping("/search/by-name")
+    @Operation(summary = "Buscar merchants por nombre",
+                description = "Coincidencia parcial sin distinguir mayúsculas ('pay' encuentra 'Wipay')")
+    public List<MerchantResponse> findByName(@Valid @ParameterObject NameSearchRequest name) {
+        return merchantMapper.modelsToResponses(merchantService.findByName(name.getName()));
     }
 }
