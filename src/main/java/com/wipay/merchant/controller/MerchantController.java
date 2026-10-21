@@ -44,7 +44,7 @@ public class MerchantController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Crear un merchant")
-    public MerchantResponse create(MerchantRequest request){
+    public MerchantResponse create(@Valid @RequestBody MerchantRequest request){
         MerchantModel created = merchantService.create(merchantMapper.requestToModel(request));
         return merchantMapper.modelToResponse(created);
     }
