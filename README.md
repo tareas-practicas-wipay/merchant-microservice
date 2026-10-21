@@ -24,6 +24,16 @@ Permite crear, consultar y modificar merchants, y saber a qué cliente pertenece
 
 El servicio arranca en **http://localhost:8082**.
 
+## Endpoints
+
+Documentación interactiva en **http://localhost:8082/swagger-ui.html**.
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| `POST` | `/merchants` | Crear un merchant |
+| `GET` | `/merchants/{id}` | Obtener un merchant por id. Con `?simpleOutput=true` devuelve solo el id |
+| `GET` | `/merchants/search/by-name?name=` | Buscar merchants cuyo nombre contiene el texto, sin distinguir mayúsculas |
+
 ## Modelo de datos
 
 Todas las entidades extienden de `MainTable`, que viene del starter de DynamoDB (diseño de tabla única).
