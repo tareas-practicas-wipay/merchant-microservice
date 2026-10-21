@@ -58,4 +58,14 @@ public class MerchantServiceImpl implements MerchantService {
     public List<MerchantModel> findByClientId(String clientId) {
         return merchantMapper.entitiesToModels(merchantRepository.findByClientId(clientId));
     }
+
+    @Override
+    public MerchantModel update(String id, MerchantModel changes) {
+        MerchantModel existing = findById(id);
+
+        merchantMapper.updateModel(changes, existing);
+
+        MerchantEntity saved = merchantRepository.save(merchantMapper.modelToEntity(existing));
+        return merchantMapper.entityToModel(saved);
+    }
 }

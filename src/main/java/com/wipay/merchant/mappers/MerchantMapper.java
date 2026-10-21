@@ -3,10 +3,12 @@ package com.wipay.merchant.mappers;
 import com.wipay.merchant.model.MerchantModel;
 import com.wipay.merchant.model.entity.MerchantEntity;
 import com.wipay.merchant.model.request.MerchantRequest;
+import com.wipay.merchant.model.request.MerchantUpdateRequest;
 import com.wipay.merchant.model.response.MerchantResponse;
 import com.wipay.merchant.model.response.SimpleResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
@@ -57,4 +59,18 @@ public interface MerchantMapper {
     /// MODELO MERCHANT GENÉRICO -> SALIDA SIMPLE CON id CLIENTID
     @Mapping(target = "id", source = "clientId")
     SimpleResponse modelToClientReference(MerchantModel model);
+
+    /// ENTRADA MODIFICACIÓN -> MODELO
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "clientId", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "createdDate", ignore = true) // Estos atributos se conservan, no se modifican
+    MerchantModel updateRequestToModel(MerchantUpdateRequest updateRequest);
+
+    /// ACTUALIZAR MODELO
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "clientId", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    void updateModel(MerchantModel changes, @MappingTarget MerchantModel existing); // @MappingTarget indica que el parámetro no se crea, se modifica
 }

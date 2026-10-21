@@ -4,6 +4,7 @@ import com.wipay.merchant.mappers.MerchantMapper;
 import com.wipay.merchant.model.MerchantModel;
 import com.wipay.merchant.model.request.ClientIdSearchRequest;
 import com.wipay.merchant.model.request.MerchantRequest;
+import com.wipay.merchant.model.request.MerchantUpdateRequest;
 import com.wipay.merchant.model.request.NameSearchRequest;
 import com.wipay.merchant.model.response.MerchantResponse;
 import com.wipay.merchant.model.response.SimpleResponse;
@@ -80,5 +81,12 @@ public class MerchantController {
             description = "Devuelve el id del cliente")
     public SimpleResponse findClientOfMerchant(@PathVariable String id) {
         return merchantMapper.modelToClientReference(merchantService.findById(id));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Modificar un merchant")
+    public MerchantResponse update(@PathVariable String id, @Valid @RequestBody MerchantUpdateRequest updateRequest) {
+        MerchantModel updated = merchantService.update(id, merchantMapper.updateRequestToModel(updateRequest));
+        return merchantMapper.modelToResponse(updated);
     }
 }

@@ -14,4 +14,5 @@ public interface MerchantService {
 
     List<MerchantModel> findByClientId(String clientId);
 
+    MerchantModel update(String id, MerchantModel changes);
 }

@@ -35,6 +35,7 @@ Documentación interactiva en **http://localhost:8082/swagger-ui.html**.
 | `GET` | `/merchants/search/by-name?name=` | Buscar merchants cuyo nombre contiene el texto, sin distinguir mayúsculas |
 | `GET` | `/merchants/search/by-client?clientId=` | Obtener los merchants de un cliente |
 | `GET` | `/merchants/{id}/client` | Obtener el id del cliente al que pertenece un merchant |
+| `PUT` | `/merchants/{id}` | Modificar el nombre, la dirección y el tipo de un merchant |
 
 Los dos endpoints de relaciones están en este microservicio porque es el que gestiona los datos de los merchants. Por ahora no se comprueba que el cliente exista: se hará desde el ejercicio 3, llamando a client-microservice con Feign.
 
@@ -79,6 +80,8 @@ Cada merchant se guarda dentro de la partición de su cliente.
 | Merchants por nombre | Query sobre `gIndex3` (`ENTITY#MERCHANT`) con filtro `contains` sobre `keywordsSearch` |
 
 La búsqueda por nombre lee todos los merchants y después filtra, porque DynamoDB no permite buscar texto parcial con una condición de clave. Gracias a `gIndex3`, no lee los clientes ni el resto de la tabla.
+
+El cliente de un merchant no se puede cambiar: forma parte de la `PK`, y en DynamoDB la clave primaria de un ítem no se puede modificar. Cambiarlo obligaría a borrar el ítem y crearlo de nuevo en la partición del otro cliente.
 
 ## Estructura del proyecto
 
