@@ -13,7 +13,7 @@ Permite crear, consultar y modificar merchants, y saber a qué cliente pertenece
 - MapStruct: 1.6.3
 - DynamoDB: wipay-dynamodb-spring-boot-starter 0.2.0-SNAPSHOT (AWS SDK v2 2.55.16)
 - Swagger / OpenAPI: springdoc-openapi 3.1.1
-- Spring Cloud: 2025.1.2 (OpenFeign 5.0.x), para las llamadas a client-microservice
+- Spring Cloud: 2025.1.2 (OpenFeign 5.0.2 y CircuitBreaker con Resilience4j), para las llamadas a client-microservice
 
 ## Requisitos previos
 
@@ -78,6 +78,20 @@ Tiempos de espera (en `application.properties`):
 spring.cloud.openfeign.client.config.client-service.connect-timeout=2000
 spring.cloud.openfeign.client.config.client-service.read-timeout=3000
 ```
+
+### Circuit breaker
+
+Las llamadas pasan por un circuit breaker de Resilience4j (configurado en `ResilienceConfig`). Si fallan la mitad de las últimas 5 llamadas, el circuito se abre y durante 10 segundos se responde `503` al momento, sin llamar a client-microservice. Pasado ese tiempo deja pasar 2 llamadas de prueba: si van bien, vuelve a la normalidad.
+
+Un `404` de client-microservice no cuenta como fallo: es una respuesta válida ("el cliente no existe").
+
+| Parámetro | Valor |
+|---|---|
+| Ventana de llamadas | 5 |
+| Porcentaje de fallos para abrir | 50 % |
+| Tiempo abierto | 10 s |
+| Llamadas de prueba | 2 |
+| Tiempo máximo por llamada (TimeLimiter) | 4 s, por encima del read-timeout de Feign (3 s) |
 
 ## Modelo de datos
 
