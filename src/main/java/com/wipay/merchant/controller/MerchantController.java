@@ -2,6 +2,7 @@ package com.wipay.merchant.controller;
 
 import com.wipay.merchant.mappers.MerchantMapper;
 import com.wipay.merchant.model.MerchantModel;
+import com.wipay.merchant.model.request.ClientIdSearchRequest;
 import com.wipay.merchant.model.request.MerchantRequest;
 import com.wipay.merchant.model.request.NameSearchRequest;
 import com.wipay.merchant.model.response.MerchantResponse;
@@ -65,5 +66,19 @@ public class MerchantController {
                 description = "Coincidencia parcial sin distinguir mayúsculas ('pay' encuentra 'Wipay')")
     public List<MerchantResponse> findByName(@Valid @ParameterObject NameSearchRequest name) {
         return merchantMapper.modelsToResponses(merchantService.findByName(name.getName()));
+    }
+
+    @GetMapping("/search/by-client")
+    @Operation(summary = "Obtener los merchants de un cliente")
+    public List<MerchantResponse> findByClientId(@Valid @ParameterObject ClientIdSearchRequest request) {
+        // TODO (Pendiente tarea 3): comprobar con Feign que el cliente existe
+        return merchantMapper.modelsToResponses(merchantService.findByClientId(request.getClientId()));
+    }
+
+    @GetMapping("/{id}/client")
+    @Operation(summary = "Obtener el cliente al que pertenece un merchant",
+            description = "Devuelve el id del cliente")
+    public SimpleResponse findClientOfMerchant(@PathVariable String id) {
+        return merchantMapper.modelToClientReference(merchantService.findById(id));
     }
 }

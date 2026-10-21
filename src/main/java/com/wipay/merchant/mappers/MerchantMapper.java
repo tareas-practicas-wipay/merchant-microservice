@@ -53,5 +53,8 @@ public interface MerchantMapper {
 
     /// MODELO GENÉRICO -> SALIDA SIMPLE (servicio --devolver-simple-> controlador)
     SimpleResponse modelToSimpleResponse(MerchantModel model);
-    List<SimpleResponse> modelsToSimpleResponses(List<MerchantModel> models);
+
+    /// MODELO MERCHANT GENÉRICO -> SALIDA SIMPLE CON id CLIENTID
+    @Mapping(target = "id", source = "clientId")
+    SimpleResponse modelToClientReference(MerchantModel model);
 }

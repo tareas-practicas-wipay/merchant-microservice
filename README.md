@@ -33,6 +33,10 @@ Documentación interactiva en **http://localhost:8082/swagger-ui.html**.
 | `POST` | `/merchants` | Crear un merchant |
 | `GET` | `/merchants/{id}` | Obtener un merchant por id. Con `?simpleOutput=true` devuelve solo el id |
 | `GET` | `/merchants/search/by-name?name=` | Buscar merchants cuyo nombre contiene el texto, sin distinguir mayúsculas |
+| `GET` | `/merchants/search/by-client?clientId=` | Obtener los merchants de un cliente |
+| `GET` | `/merchants/{id}/client` | Obtener el id del cliente al que pertenece un merchant |
+
+Los dos endpoints de relaciones están en este microservicio porque es el que gestiona los datos de los merchants. Por ahora no se comprueba que el cliente exista: se hará desde el ejercicio 3, llamando a client-microservice con Feign.
 
 ## Modelo de datos
 
