@@ -123,5 +123,13 @@ Controller ── Request ──► (mapper) ── Model ──► Service ─�
 
 ## Seguimiento del estado del proyecto
 
-- [x] Creación del microservicio
-- [x] Dependencias: MapStruct, DynamoDB y Swagger
+- [x] Ejercicio 1: creación del microservicio y dependencias (MapStruct, DynamoDB y Swagger)
+- [x] Ejercicio 2: modelos, mappers, repositorio, servicio y endpoints
+    - [x] Crear merchant
+    - [x] Buscar por id, con salida completa o simple (`simpleOutput`)
+    - [x] Buscar por nombre (coincidencia parcial, sin distinguir mayúsculas)
+    - [x] Merchants de un cliente y cliente de un merchant
+    - [x] Modificar merchant
+    - [x] Manejo de errores con `ProblemDetail`
+- [ ] Ejercicio 3: comprobar con Feign que el cliente existe
+- [ ] Ejercicio 4: interceptor con validación de JWT
