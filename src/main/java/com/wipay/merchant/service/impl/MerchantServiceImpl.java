@@ -1,10 +1,12 @@
 package com.wipay.merchant.service.impl;
 
+import com.wipay.merchant.exception.InvalidReferenceException;
 import com.wipay.merchant.exception.NotFoundException;
 import com.wipay.merchant.mappers.MerchantMapper;
 import com.wipay.merchant.model.MerchantModel;
 import com.wipay.merchant.model.entity.MerchantEntity;
 import com.wipay.merchant.repository.MerchantRepository;
+import com.wipay.merchant.service.ClientIntegrationService;
 import com.wipay.merchant.service.MerchantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,10 +32,14 @@ public class MerchantServiceImpl implements MerchantService {
 
     private final MerchantRepository merchantRepository;
     private final MerchantMapper merchantMapper;
+    private final ClientIntegrationService clientIntegrationService;
 
     @Override
     public MerchantModel create(MerchantModel merchant) {
-        // TODO (Pendiente tarea 3): comprobar con Feign que el cliente existe
+        if (!clientIntegrationService.clientExists(merchant.getClientId())) {
+            throw new InvalidReferenceException("No existe ningún cliente con id " + merchant.getClientId());
+        }
+
         merchant.setId(UUID.randomUUID().toString());
         merchant.setStatus(STATUS_ACTIVE);
         merchant.setCreatedDate(Instant.now());
@@ -56,6 +62,10 @@ public class MerchantServiceImpl implements MerchantService {
 
     @Override
     public List<MerchantModel> findByClientId(String clientId) {
+        if (!clientIntegrationService.clientExists(clientId)) {
+            throw new NotFoundException("No existe ningún cliente con id " + clientId);
+        }
+
         return merchantMapper.entitiesToModels(merchantRepository.findByClientId(clientId));
     }
 
