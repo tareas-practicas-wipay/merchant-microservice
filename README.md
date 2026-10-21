@@ -39,6 +39,26 @@ Documentación interactiva en **http://localhost:8082/swagger-ui.html**.
 
 Los dos endpoints de relaciones están en este microservicio porque es el que gestiona los datos de los merchants. Por ahora no se comprueba que el cliente exista: se hará desde el ejercicio 3, llamando a client-microservice con Feign.
 
+## Errores
+
+Los errores se devuelven con el formato estándar `ProblemDetail` (RFC 9457):
+
+```json
+{
+  "type": "about:blank",
+  "title": "Recurso no encontrado",
+  "status": 404,
+  "detail": "No existe ningún merchant con id abc",
+  "instance": "/merchants/abc"
+}
+```
+
+| Código | Cuándo |
+|---|---|
+| `400` | Datos de entrada no válidos, JSON mal formado o un `merchantType` que no existe. En los errores de validación, `errors` indica el motivo de cada campo |
+| `404` | El merchant no existe |
+| `500` | Error inesperado. El detalle se registra en el log, no en la respuesta |
+
 ## Modelo de datos
 
 Todas las entidades extienden de `MainTable`, que viene del starter de DynamoDB (diseño de tabla única).
