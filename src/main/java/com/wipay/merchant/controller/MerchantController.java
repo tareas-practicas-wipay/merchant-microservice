@@ -72,7 +72,6 @@ public class MerchantController {
     @GetMapping("/search/by-client")
     @Operation(summary = "Obtener los merchants de un cliente")
     public List<MerchantResponse> findByClientId(@Valid @ParameterObject ClientIdSearchRequest request) {
-        // TODO (Pendiente tarea 3): comprobar con Feign que el cliente existe
         return merchantMapper.modelsToResponses(merchantService.findByClientId(request.getClientId()));
     }
 

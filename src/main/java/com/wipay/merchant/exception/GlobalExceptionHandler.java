@@ -72,4 +72,17 @@ public class GlobalExceptionHandler {
         problem.setTitle(title);
         return problem;
     }
+
+    @ExceptionHandler(InvalidReferenceException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_CONTENT)
+    public ProblemDetail handleInvalidReference(InvalidReferenceException ex) {
+        return problem(HttpStatus.UNPROCESSABLE_CONTENT, "Referencia no válida", ex.getMessage());
+    }
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public ProblemDetail handleServiceUnavailable(ServiceUnavailableException ex) {
+        log.warn("{}", ex.getMessage(), ex);
+        return problem(HttpStatus.SERVICE_UNAVAILABLE, "Servicio no disponible", ex.getMessage());
+    }
 }
