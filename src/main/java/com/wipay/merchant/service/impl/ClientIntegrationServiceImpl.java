@@ -3,6 +3,7 @@ package com.wipay.merchant.service.impl;
 import com.wipay.merchant.config.ResilienceConfig;
 import com.wipay.merchant.exception.ServiceUnavailableException;
 import com.wipay.merchant.integration.ClientFeignClient;
+import com.wipay.merchant.integration.RequestTokenProvider;
 import com.wipay.merchant.service.ClientIntegrationService;
 import feign.FeignException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
@@ -16,20 +17,23 @@ public class ClientIntegrationServiceImpl implements ClientIntegrationService {
 
     private final ClientFeignClient clientFeignClient;
     private final CircuitBreakerFactory<?, ?> circuitBreakerFactory;
+    private final RequestTokenProvider requestTokenProvider;
 
     @Override
     public boolean clientExists(String clientId) {
+        String token = requestTokenProvider.currentToken();   // en el hilo de la petición
+
         return circuitBreakerFactory.create(ResilienceConfig.CLIENT_SERVICE)
-                .run(() -> callClientService(clientId),
+                .run(() -> callClientService(clientId, token),
                         error -> {
                             throw unavailable(clientId, error);
                         });
     }
 
-    /** El 404 se resuelve aquí dentro: para el circuit breaker es una llamada correcta. */
-    private boolean callClientService(String clientId) {
+    /// El 404 se resuelve aquí dentro: para el circuit breaker es una llamada correcta.
+    private boolean callClientService(String clientId, String token) {
         try {
-            clientFeignClient.findById(clientId, true);
+            clientFeignClient.findById(clientId, true, token);
             return true;
         } catch (FeignException.NotFound ex) {
             return false;

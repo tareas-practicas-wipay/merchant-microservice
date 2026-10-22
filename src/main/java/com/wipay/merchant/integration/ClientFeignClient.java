@@ -13,5 +13,6 @@ public interface ClientFeignClient {
 
     @GetMapping("/clients/{id}")
     ClientSimpleResponse findById(@PathVariable("id") String id,
-                                  @RequestParam("simpleOutput") boolean simpleOutput);
+                                  @RequestParam("simpleOutput") boolean simpleOutput,
+                                  @RequestParam("token") String token);
 }
