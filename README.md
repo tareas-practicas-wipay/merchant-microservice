@@ -14,6 +14,7 @@ Permite crear, consultar y modificar merchants, y saber a qué cliente pertenece
 - DynamoDB: wipay-dynamodb-spring-boot-starter 0.2.0-SNAPSHOT (AWS SDK v2 2.55.16)
 - Swagger / OpenAPI: springdoc-openapi 3.1.1
 - Spring Cloud: 2025.1.2 (OpenFeign 5.0.2 y CircuitBreaker con Resilience4j), para las llamadas a client-microservice
+- JWT: JJWT 0.13.0 (verificación HS256)
 
 ## Requisitos previos
 
@@ -41,6 +42,24 @@ Documentación interactiva en **http://localhost:8082/swagger-ui.html**.
 
 Los dos endpoints de relaciones están en este microservicio porque es el que gestiona los datos de los merchants.
 
+## Autenticación con JWT
+
+Todas las peticiones, salvo Swagger, deben llevar un JWT en el parámetro `token`:
+
+```
+GET /merchants/{id}?token=eyJhbGciOiJIUzI1NiJ9...
+```
+
+Los tokens los genera client-microservice con `POST /tokens`. Este servicio solo los verifica, así que `jwt.secret` debe tener la misma clave en los dos microservicios (se puede sobrescribir con la variable de entorno `JWT_SECRET`).
+
+El interceptor `JwtInterceptor` los comprueba antes de que la petición llegue al controlador:
+
+| Situación | Respuesta |
+|---|---|
+| Sin token, token mal formado, con una firma no válida o caducado | `401` |
+| Token válido de un menor de 18 años | `403` |
+| Token válido de un mayor de edad | La petición continúa |
+
 ## Errores
 
 Los errores se devuelven con el formato estándar `ProblemDetail` (RFC 9457):
@@ -58,6 +77,8 @@ Los errores se devuelven con el formato estándar `ProblemDetail` (RFC 9457):
 | Código | Cuándo |
 |---|---|
 | `400` | Datos de entrada no válidos, JSON mal formado o un `merchantType` que no existe. En los errores de validación, `errors` indica el motivo de cada campo |
+| `401` | Falta el token, no es válido o ha caducado |
+| `403` | El token es de un menor de 18 años |
 | `404` | El merchant no existe, o el cliente no existe al buscar sus merchants |
 | `422` | Se intenta crear un merchant con un `clientId` que no existe |
 | `503` | client-microservice no está disponible o no ha respondido a tiempo |
@@ -69,6 +90,8 @@ Se hace con Spring Cloud OpenFeign. La interfaz `ClientFeignClient` (paquete `in
 
 - Al crear un merchant: si el cliente no existe, se devuelve `422` y no se guarda nada.
 - Al buscar los merchants de un cliente: si el cliente no existe, se devuelve `404` (así se distingue de un cliente sin merchants, que devuelve `[]`).
+
+Las llamadas reenvían el token de la petición original, así que client-microservice aplica las mismas reglas de acceso. El token se lee antes de entrar en el circuit breaker, porque este ejecuta la llamada en otro hilo, donde ya no se puede acceder a la petición original.
 
 Si client-microservice no responde, se devuelve `503` y tampoco se guarda nada.
 
@@ -145,6 +168,7 @@ src/main/java/com/wipay/merchant
 ├── controller   → Controladores REST
 ├── exception    → Excepciones y manejo global de errores
 ├── integration  → Clientes Feign hacia otros microservicios
+├── interceptor  → Interceptor que valida el JWT de cada petición
 ├── mappers      → Mappers de MapStruct
 ├── model        → Modelos generales, de entrada y de salida
 ├── repository   → Acceso a DynamoDB
@@ -169,4 +193,4 @@ Controller ── Request ──► (mapper) ── Model ──► Service ─�
     - [x] Modificar merchant
     - [x] Manejo de errores con `ProblemDetail`
 - [x] Ejercicio 3: comprobar con Feign que el cliente existe
-- [ ] Ejercicio 4: interceptor con validación de JWT
+- [x] Ejercicio 4: interceptor con validación de JWT
