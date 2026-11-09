@@ -39,8 +39,15 @@ Documentación interactiva en **http://localhost:8082/swagger-ui.html**.
 | `GET` | `/merchants/search/by-client?clientId=` | Obtener los merchants de un cliente |
 | `GET` | `/merchants/{id}/client` | Obtener el id del cliente al que pertenece un merchant |
 | `PUT` | `/merchants/{id}` | Modificar el nombre, la dirección y el tipo de un merchant |
+| `DELETE` | `/merchants/{id}` | Borrar un merchant (borrado lógico) |
 
 Los dos endpoints de relaciones están en este microservicio porque es el que gestiona los datos de los merchants.
+
+### Borrado lógico
+
+`DELETE /merchants/{id}` no elimina el merchant de la tabla: cambia su `status` de `ACTIVE` a `INACTIVE` y devuelve `204`. A partir de ahí el merchant no aparece en ninguna consulta (por id se responde `404`).
+
+client-microservice usa `GET /merchants/search/by-client` para no dejar borrar un cliente que aún tiene merchants activos.
 
 ## Autenticación con JWT
 
@@ -129,6 +136,8 @@ Todas las entidades extienden de `MainTable`, que viene del starter de DynamoDB 
 
 El merchant no guarda un atributo `clientId`: el cliente al que pertenece está en su `PK`.
 
+`status` vale `ACTIVE` al crear el merchant e `INACTIVE` cuando se borra (constantes en `model/EntityStatus`).
+
 ### `MerchantType`
 
 | Valor |
@@ -155,6 +164,8 @@ Cada merchant se guarda dentro de la partición de su cliente.
 | Merchant por id | Query sobre `gIndex2` |
 | Merchants de un cliente | Query sobre la tabla con `PK = CLIENT#{clientId}` y `SK` que empieza por `MERCHANT#` |
 | Merchants por nombre | Query sobre `gIndex3` (`ENTITY#MERCHANT`) con filtro `contains` sobre `keywordsSearch` |
+
+Todas las consultas añaden el filtro `status = ACTIVE`, así que los merchants borrados no se devuelven.
 
 La búsqueda por nombre lee todos los merchants y después filtra, porque DynamoDB no permite buscar texto parcial con una condición de clave. Gracias a `gIndex3`, no lee los clientes ni el resto de la tabla.
 

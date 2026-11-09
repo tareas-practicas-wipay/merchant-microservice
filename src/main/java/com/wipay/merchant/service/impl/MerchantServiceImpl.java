@@ -3,6 +3,7 @@ package com.wipay.merchant.service.impl;
 import com.wipay.merchant.exception.InvalidReferenceException;
 import com.wipay.merchant.exception.NotFoundException;
 import com.wipay.merchant.mappers.MerchantMapper;
+import com.wipay.merchant.model.EntityStatus;
 import com.wipay.merchant.model.MerchantModel;
 import com.wipay.merchant.model.entity.MerchantEntity;
 import com.wipay.merchant.repository.MerchantRepository;
@@ -28,8 +29,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MerchantServiceImpl implements MerchantService {
 
-    private static final String STATUS_ACTIVE = "ACTIVE";
-
     private final MerchantRepository merchantRepository;
     private final MerchantMapper merchantMapper;
     private final ClientIntegrationService clientIntegrationService;
@@ -41,7 +40,7 @@ public class MerchantServiceImpl implements MerchantService {
         }
 
         merchant.setId(UUID.randomUUID().toString());
-        merchant.setStatus(STATUS_ACTIVE);
+        merchant.setStatus(EntityStatus.ACTIVE);
         merchant.setCreatedDate(Instant.now());
 
         MerchantEntity saved = merchantRepository.save(merchantMapper.modelToEntity(merchant));
@@ -77,5 +76,13 @@ public class MerchantServiceImpl implements MerchantService {
 
         MerchantEntity saved = merchantRepository.save(merchantMapper.modelToEntity(existing));
         return merchantMapper.entityToModel(saved);
+    }
+
+    /// Borrado lógico: el merchant se queda en la tabla con status INACTIVE
+    @Override
+    public void delete(String id) {
+        MerchantModel existing = findById(id);
+        existing.setStatus(EntityStatus.INACTIVE);
+        merchantRepository.save(merchantMapper.modelToEntity(existing));
     }
 }

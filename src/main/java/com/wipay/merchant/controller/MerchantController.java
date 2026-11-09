@@ -88,4 +88,12 @@ public class MerchantController {
         MerchantModel updated = merchantService.update(id, merchantMapper.updateRequestToModel(updateRequest));
         return merchantMapper.modelToResponse(updated);
     }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Borrar un merchant",
+            description = "Borrado lógico: el merchant pasa a status INACTIVE y deja de aparecer en las consultas")
+    public void delete(@PathVariable String id) {
+        merchantService.delete(id);
+    }
 }

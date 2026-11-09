@@ -1,6 +1,7 @@
 package com.wipay.merchant.repository;
 
 import com.wipay.dynamodb.entity.MainTable;
+import com.wipay.merchant.model.EntityStatus;
 import com.wipay.merchant.model.entity.MerchantEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -8,7 +9,6 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
-import software.amazon.awssdk.enhanced.dynamodb.model.ScanEnhancedRequest;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.util.List;
@@ -17,6 +17,13 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 public class MerchantRepository {
+
+    /** Solo merchants activos: los borrados (INACTIVE) no aparecen en ninguna consulta. */
+    private static final Expression ACTIVE_FILTER = Expression.builder()
+            .expression("#status = :active")
+            .putExpressionName("#status", "status")
+            .putExpressionValue(":active", AttributeValue.fromS(EntityStatus.ACTIVE))
+            .build();
 
     private final DynamoDbTable<MerchantEntity> merchantTable;
 
@@ -29,8 +36,13 @@ public class MerchantRepository {
         QueryConditional condition = QueryConditional.keyEqualTo(
                 key -> key.partitionValue(MerchantEntity.gIndex2PkOf(id)));
 
+        QueryEnhancedRequest request = QueryEnhancedRequest.builder()
+                .queryConditional(condition)
+                .filterExpression(ACTIVE_FILTER)
+                .build();
+
         return merchantTable.index(MainTable.GINDEX2)
-                .query(condition)
+                .query(request)
                 .stream()
                 .flatMap(page -> page.items().stream())
                 .findFirst();
@@ -41,7 +53,12 @@ public class MerchantRepository {
                                         key.partitionValue(MerchantEntity.pkOf(clientId))
                                     .sortValue(MerchantEntity.PREFIX));
 
-        return merchantTable.query(condition)
+        QueryEnhancedRequest request = QueryEnhancedRequest.builder()
+                .queryConditional(condition)
+                .filterExpression(ACTIVE_FILTER)
+                .build();
+
+        return merchantTable.query(request)
                 .items()
                 .stream()
                 .toList();
@@ -51,7 +68,7 @@ public class MerchantRepository {
         QueryConditional condition = QueryConditional.keyEqualTo(
                 key -> key.partitionValue(MerchantEntity.ENTITY_TYPE));
 
-        Expression filter = Expression.builder()
+        Expression nameFilter = Expression.builder()
                 .expression("contains(#keywords, :text)")
                 .putExpressionName("#keywords", "keywordsSearch")
                 .putExpressionValue(":text", AttributeValue.fromS(MerchantEntity.keywordsOf(text)))
@@ -59,7 +76,7 @@ public class MerchantRepository {
 
         QueryEnhancedRequest request = QueryEnhancedRequest.builder()
                 .queryConditional(condition)
-                .filterExpression(filter)
+                .filterExpression(Expression.join(nameFilter, ACTIVE_FILTER, " AND "))
                 .build();
 
         return merchantTable.index(MainTable.GINDEX3)
