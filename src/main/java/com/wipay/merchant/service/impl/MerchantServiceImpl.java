@@ -55,6 +55,11 @@ public class MerchantServiceImpl implements MerchantService {
     }
 
     @Override
+    public List<MerchantModel> findAll() {
+        return merchantMapper.entitiesToModels(merchantRepository.findAll());
+    }
+
+    @Override
     public List<MerchantModel> findByName(String name) {
         return merchantMapper.entitiesToModels(merchantRepository.findByName(name));
     }

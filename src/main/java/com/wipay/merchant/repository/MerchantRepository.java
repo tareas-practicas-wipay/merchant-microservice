@@ -64,19 +64,28 @@ public class MerchantRepository {
                 .toList();
     }
 
-    public List<MerchantEntity> findByName(String text) {
-        QueryConditional condition = QueryConditional.keyEqualTo(
-                key -> key.partitionValue(MerchantEntity.ENTITY_TYPE));
+    public List<MerchantEntity> findAll() {
+        return queryMerchants(ACTIVE_FILTER);
+    }
 
+    public List<MerchantEntity> findByName(String text) {
         Expression nameFilter = Expression.builder()
                 .expression("contains(#keywords, :text)")
                 .putExpressionName("#keywords", "keywordsSearch")
                 .putExpressionValue(":text", AttributeValue.fromS(MerchantEntity.keywordsOf(text)))
                 .build();
 
+        return queryMerchants(Expression.join(nameFilter, ACTIVE_FILTER, " AND "));
+    }
+
+    /** Query sobre gIndex3 (ENTITY#MERCHANT): lee solo merchants, no los clientes ni el resto de la tabla. */
+    private List<MerchantEntity> queryMerchants(Expression filter) {
+        QueryConditional condition = QueryConditional.keyEqualTo(
+                key -> key.partitionValue(MerchantEntity.ENTITY_TYPE));
+
         QueryEnhancedRequest request = QueryEnhancedRequest.builder()
                 .queryConditional(condition)
-                .filterExpression(Expression.join(nameFilter, ACTIVE_FILTER, " AND "))
+                .filterExpression(filter)
                 .build();
 
         return merchantTable.index(MainTable.GINDEX3)

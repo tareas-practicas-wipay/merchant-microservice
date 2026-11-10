@@ -10,6 +10,8 @@ public interface MerchantService {
 
     MerchantModel findById(String id);
 
+    List<MerchantModel> findAll();
+
     List<MerchantModel> findByName(String name);
 
     List<MerchantModel> findByClientId(String clientId);

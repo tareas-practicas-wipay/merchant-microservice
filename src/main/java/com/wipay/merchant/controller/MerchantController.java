@@ -62,6 +62,12 @@ public class MerchantController {
                 : merchantMapper.modelToResponse(merchant);
     }
 
+    @GetMapping
+    @Operation(summary = "Listar todos los merchants activos")
+    public List<MerchantResponse> findAll() {
+        return merchantMapper.modelsToResponses(merchantService.findAll());
+    }
+
     @GetMapping("/search/by-name")
     @Operation(summary = "Buscar merchants por nombre",
                 description = "Coincidencia parcial sin distinguir mayúsculas ('pay' encuentra 'Wipay')")
