@@ -34,6 +34,7 @@ Documentación interactiva en **http://localhost:8082/swagger-ui.html**.
 | Método | Ruta | Descripción |
 |---|---|---|
 | `POST` | `/merchants` | Crear un merchant |
+| `GET` | `/merchants` | Listar todos los merchants activos |
 | `GET` | `/merchants/{id}` | Obtener un merchant por id. Con `?simpleOutput=true` devuelve solo el id |
 | `GET` | `/merchants/search/by-name?name=` | Buscar merchants cuyo nombre contiene el texto, sin distinguir mayúsculas |
 | `GET` | `/merchants/search/by-client?clientId=` | Obtener los merchants de un cliente |
@@ -163,6 +164,7 @@ Cada merchant se guarda dentro de la partición de su cliente.
 |---|---|
 | Merchant por id | Query sobre `gIndex2` |
 | Merchants de un cliente | Query sobre la tabla con `PK = CLIENT#{clientId}` y `SK` que empieza por `MERCHANT#` |
+| Todos los merchants | Query sobre `gIndex3` (`ENTITY#MERCHANT`) |
 | Merchants por nombre | Query sobre `gIndex3` (`ENTITY#MERCHANT`) con filtro `contains` sobre `keywordsSearch` |
 
 Todas las consultas añaden el filtro `status = ACTIVE`, así que los merchants borrados no se devuelven.
